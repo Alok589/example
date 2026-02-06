@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Will you be my Valentine 💘</title>
-
   <style>
     body {
       margin: 0;
@@ -88,7 +87,6 @@
     }
   </style>
 </head>
-
 <body>
 
   <div class="card" id="card">
@@ -102,18 +100,11 @@
   </div>
 
   <div class="gif-screen" id="gifScreen">
-    <img
-      src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif"
-      alt="Celebration GIF"
-    />
+    <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" alt="Celebration GIF" />
     <h2>I KNEW IT 😍🔥</h2>
   </div>
 
-  <audio
-    id="yesSound"
-    src="https://www.soundjay.com/buttons/sounds/button-3.mp3"
-    preload="auto"
-  ></audio>
+  <audio id="yesSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3" preload="auto"></audio>
 
   <script>
     const noBtn = document.getElementById("noBtn");
@@ -123,7 +114,7 @@
     const question = document.getElementById("question");
     const yesSound = document.getElementById("yesSound");
 
-    // 💖 Dynamic name from URL
+    // Dynamic name from URL
     const params = new URLSearchParams(window.location.search);
     const name = params.get("name");
     if (name) {
@@ -143,8 +134,11 @@
       const x = Math.random() * maxX;
       const y = Math.random() * maxY;
 
-      scale *= 0.85;      // 😭 shrink each time
-      rotation += 360;    // 🌀 spin
+      // shrink gradually, but never disappear
+      scale *= 0.85;
+      if (scale < 0.3) scale = 1;
+
+      rotation += 360;
 
       noBtn.style.left = `${x}px`;
       noBtn.style.top = `${y}px`;
@@ -160,7 +154,7 @@
     });
 
     // Mobile tap
-    noBtn.addEventListener("touchstart", (e) => {
+    noBtn.addEventListener("touchend", (e) => {
       e.preventDefault();
       dodgeNo();
     });
