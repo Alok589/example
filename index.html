@@ -20,6 +20,7 @@
       justify-content: center;
       font-family: "Poppins", sans-serif;
       overflow: hidden;
+      touch-action: none;
     }
 
     /* THE FULL BACKGROUND PICTURE */
@@ -34,7 +35,6 @@
       background-repeat: no-repeat;
       background-position: center center;
       background-size: cover;
-      opacity: 0; 
       z-index: 1;
     }
 
@@ -43,7 +43,8 @@
     }
 
     @keyframes fadeIn {
-      to { opacity: 0.5; } /* Adjust 0.5 to make photo more or less clear */
+      from { opacity: 0; }
+      to { opacity: 0.5; } /* Adjust transparency of your photo here */
     }
 
     .card {
@@ -55,7 +56,6 @@
       width: 90%;
       max-width: 380px;
       position: relative;
-      overflow: hidden; 
       min-height: 420px;
       display: flex;
       flex-direction: column;
@@ -83,20 +83,34 @@
       touch-action: none;
     }
 
-    #yesBtn { background: #ff4d79; color: white; position: absolute; left: 20px; bottom: 20px; z-index: 15; }
-    #noBtn { background: #e0e0e0; color: #333; position: absolute; right: 20px; bottom: 20px; z-index: 12; }
+    #yesBtn { 
+      background: #ff4d79; 
+      color: white; 
+      position: absolute; 
+      left: 20px; 
+      bottom: 20px; 
+      z-index: 20; 
+    }
 
-    /* CELEBRATION SCREEN */
+    #noBtn { 
+      background: #e0e0e0; 
+      color: #333; 
+      position: absolute; 
+      right: 20px; 
+      bottom: 20px; 
+      z-index: 15; 
+    }
+
     #gifScreen {
       display: none;
-      position: fixed; /* Takes it out of the card flow */
+      position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       flex-direction: column;
       align-items: center;
       text-align: center;
-      z-index: 20;
+      z-index: 100;
       width: 100%;
     }
 
@@ -110,7 +124,7 @@
       margin-top: 20px;
       font-size: 32px;
       color: #ff4d79;
-      text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+      text-shadow: 2px 2px 10px rgba(255,255,255,0.9);
     }
   </style>
 </head>
@@ -132,14 +146,12 @@
     <h2>I KNEW IT! 😍💖</h2>
   </div>
 
-
   <script>
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
     const card = document.getElementById("card");
     const btnArea = document.getElementById("btnArea");
     const question = document.getElementById("question");
-    const yesSound = document.getElementById("yesSound");
     const bgPicture = document.getElementById("bgPicture");
     const gifScreen = document.getElementById("gifScreen");
 
@@ -165,20 +177,23 @@
       noBtn.style.transform = `scale(${Math.max(scale, 0.3)}) rotate(${rotation}deg)`;
     }
 
-    noBtn.addEventListener("pointerdown", moveNoButton);
-
-    yesBtn.addEventListener("click", () => {
-      yesSound.play().catch(() => {});
+    function handleYes(e) {
+      if(e) e.preventDefault();
       
-      // HIDE THE CARD ENTIRELY
-      card.style.display = "none"; 
+      // Clear the main card
+      card.style.display = "none";
       
-      // SHOW BACKGROUND PHOTO AND GIF
+      // Show background photo and celebration GIF
       bgPicture.style.display = "block";
       bgPicture.classList.add('fade-in-bg');
       gifScreen.style.display = "flex";
-    });
+    }
 
+    // Event listeners using pointerdown for instant response on mobile
+    noBtn.addEventListener("pointerdown", moveNoButton);
+    yesBtn.addEventListener("pointerdown", handleYes);
+
+    // URL Name personalization
     const name = new URLSearchParams(window.location.search).get("name");
     if (name) question.textContent = `${name}, will you be my Valentine?`;
   </script>
