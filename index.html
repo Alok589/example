@@ -30,21 +30,26 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      /* Replace 'photo.jpg' with your uploaded filename */
-      background: url('IMG_5915.jpeg') no-repeat center center;
+      /* UPDATED TO YOUR FILENAME */
+      background-image: url('IMG_5915.jpeg'); 
+      background-repeat: no-repeat;
+      background-position: center center;
       background-size: cover;
       opacity: 0.4; 
       z-index: 1;
-      animation: zoomIn 10s infinite alternate;
     }
 
-    @keyframes zoomIn {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
+    .fade-in-bg {
+      animation: fadeIn 2.5s ease-in forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 0.4; }
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.9); /* Slight transparency for the card too */
+      background: rgba(255, 255, 255, 0.95);
       padding: 30px;
       border-radius: 22px;
       text-align: center;
@@ -61,12 +66,7 @@
     }
 
     .emoji { font-size: 60px; margin-bottom: 10px; }
-
-    h1 {
-      font-size: 24px;
-      margin: 10px 0 30px;
-      color: #333;
-    }
+    h1 { font-size: 24px; margin: 10px 0 30px; color: #333; }
 
     .buttons-container {
       position: relative;
@@ -92,7 +92,6 @@
       left: 20px;
       bottom: 20px;
       z-index: 15;
-      box-shadow: 0 4px 15px rgba(255, 77, 121, 0.3);
     }
 
     #noBtn {
@@ -143,7 +142,7 @@
     <h2>I KNEW IT! 😍💖</h2>
   </div>
 
-  <audio id="yesSound" src="https://www.myinstants.com/media/sounds/aww.mp3" preload="auto"></audio>
+  <audio id="yesSound" src="https://www.soundjay.com/misc/sounds/wind-chime-1.mp3" preload="auto"></audio>
 
   <script>
     const noBtn = document.getElementById("noBtn");
@@ -154,23 +153,14 @@
     const yesSound = document.getElementById("yesSound");
     const bgPicture = document.getElementById("bgPicture");
 
-    const noTexts = [
-      "No", "Are you sure?", "Think again!", 
-      "Wait, what?", "You're misclicking!", 
-      "Surely not?", "Please? 🥺", "Last chance!"
-    ];
-
-    let scale = 1;
-    let rotation = 0;
-    let textIndex = 0;
+    const noTexts = ["No", "Are you sure?", "Think again!", "Wait, what?", "Please? 🥺", "Last chance!"];
+    let scale = 1, rotation = 0, textIndex = 0;
 
     function moveNoButton(e) {
       if(e) e.preventDefault();
-
       const areaRect = btnArea.getBoundingClientRect();
-      const padding = 20; 
-      const maxX = areaRect.width - noBtn.offsetWidth - padding;
-      const maxY = areaRect.height - noBtn.offsetHeight - padding;
+      const maxX = areaRect.width - noBtn.offsetWidth - 20;
+      const maxY = areaRect.height - noBtn.offsetHeight - 20;
 
       const randomX = Math.random() * Math.max(0, maxX);
       const randomY = Math.random() * Math.max(0, maxY);
@@ -189,13 +179,14 @@
 
     yesBtn.addEventListener("click", () => {
       yesSound.play().catch(() => {});
-      card.style.background = "rgba(255, 255, 255, 0.7)"; // Make card transparent too
+      card.style.background = "rgba(255, 255, 255, 0.7)"; 
       card.querySelector('.emoji').style.display = "none";
       card.querySelector('h1').style.display = "none";
       btnArea.style.display = "none";
       
       gifScreen.style.display = "flex";
-      bgPicture.style.display = "block"; 
+      bgPicture.style.display = "block";
+      bgPicture.classList.add('fade-in-bg');
     });
 
     const name = new URLSearchParams(window.location.search).get("name");
