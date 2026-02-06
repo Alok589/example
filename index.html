@@ -6,7 +6,6 @@
   <title>Will you be my Valentine 💘</title>
 
   <style>
-    /* Prevent accidental scrolling/zooming on mobile */
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
@@ -23,8 +22,29 @@
       overflow: hidden;
     }
 
+    /* THE TRANSPARENT PICTURE BACKGROUND */
+    #bgPicture {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      /* Replace 'photo.jpg' with your uploaded filename */
+      background: url('IMG_5915.jpeg') no-repeat center center;
+      background-size: cover;
+      opacity: 0.4; 
+      z-index: 1;
+      animation: zoomIn 10s infinite alternate;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(1); }
+      to { transform: scale(1.1); }
+    }
+
     .card {
-      background: white;
+      background: rgba(255, 255, 255, 0.9); /* Slight transparency for the card too */
       padding: 30px;
       border-radius: 22px;
       text-align: center;
@@ -32,18 +52,15 @@
       width: 90%;
       max-width: 380px;
       position: relative;
-      /* This prevents the button from ever leaving the white box visually */
       overflow: hidden; 
-      min-height: 400px;
+      min-height: 420px;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      z-index: 10;
     }
 
-    .emoji {
-      font-size: 60px;
-      margin-bottom: 10px;
-    }
+    .emoji { font-size: 60px; margin-bottom: 10px; }
 
     h1 {
       font-size: 24px;
@@ -51,22 +68,21 @@
       color: #333;
     }
 
-    /* The container where the buttons live */
     .buttons-container {
       position: relative;
-      height: 150px;
+      height: 180px;
       width: 100%;
     }
 
     button {
-      padding: 12px 28px;
+      padding: 12px 24px;
       font-size: 18px;
       border: none;
       border-radius: 30px;
       cursor: pointer;
-      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.3s ease, top 0.3s ease;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), left 0.4s ease, top 0.4s ease;
       user-select: none;
-      touch-action: none; /* Critical for mobile to prevent browser handling the touch */
+      touch-action: none;
     }
 
     #yesBtn {
@@ -75,7 +91,8 @@
       position: absolute;
       left: 20px;
       bottom: 20px;
-      z-index: 10;
+      z-index: 15;
+      box-shadow: 0 4px 15px rgba(255, 77, 121, 0.3);
     }
 
     #noBtn {
@@ -84,7 +101,7 @@
       position: absolute;
       right: 20px;
       bottom: 20px;
-      z-index: 5;
+      z-index: 12;
     }
 
     .gif-screen {
@@ -92,12 +109,12 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
+      z-index: 20;
     }
 
     .gif-screen img {
-      max-width: 100%;
+      max-width: 85%;
       border-radius: 20px;
-      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
     }
 
     .gif-screen h2 {
@@ -108,6 +125,8 @@
   </style>
 </head>
 <body>
+
+  <div id="bgPicture"></div>
 
   <div class="card" id="card">
     <div class="emoji">🐱❤️</div>
@@ -121,10 +140,10 @@
 
   <div class="gif-screen" id="gifScreen">
     <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" alt="Celebration GIF" />
-    <h2>I KNEW IT 😍🔥</h2>
+    <h2>I KNEW IT! 😍💖</h2>
   </div>
 
-  <audio id="yesSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3" preload="auto"></audio>
+  <audio id="yesSound" src="https://www.myinstants.com/media/sounds/aww.mp3" preload="auto"></audio>
 
   <script>
     const noBtn = document.getElementById("noBtn");
@@ -133,58 +152,54 @@
     const btnArea = document.getElementById("btnArea");
     const question = document.getElementById("question");
     const yesSound = document.getElementById("yesSound");
+    const bgPicture = document.getElementById("bgPicture");
 
-    // Dynamic name from URL
-    const params = new URLSearchParams(window.location.search);
-    const name = params.get("name");
-    if (name) {
-      question.textContent = `${name}, will you be my Valentine?`;
-    }
+    const noTexts = [
+      "No", "Are you sure?", "Think again!", 
+      "Wait, what?", "You're misclicking!", 
+      "Surely not?", "Please? 🥺", "Last chance!"
+    ];
 
     let scale = 1;
     let rotation = 0;
+    let textIndex = 0;
 
     function moveNoButton(e) {
-      // Prevent default behavior (like zooming or clicking)
       if(e) e.preventDefault();
 
-      // Get dimensions of the allowed area
       const areaRect = btnArea.getBoundingClientRect();
-      
-      // We use fixed padding to ensure the button doesn't hug the walls
-      const padding = 10;
-      const bWidth = noBtn.offsetWidth;
-      const bHeight = noBtn.offsetHeight;
+      const padding = 20; 
+      const maxX = areaRect.width - noBtn.offsetWidth - padding;
+      const maxY = areaRect.height - noBtn.offsetHeight - padding;
 
-      // Calculate safe max coordinates
-      const maxX = areaRect.width - bWidth - padding;
-      const maxY = areaRect.height - bHeight - padding;
-
-      // Random position within the safe zone
-      const randomX = Math.max(padding, Math.random() * maxX);
-      const randomY = Math.max(padding, Math.random() * maxY);
+      const randomX = Math.random() * Math.max(0, maxX);
+      const randomY = Math.random() * Math.max(0, maxY);
 
       scale *= 0.85; 
       rotation += 360;
+      textIndex = (textIndex + 1) % noTexts.length;
+      noBtn.textContent = noTexts[textIndex];
 
-      // Apply new position and transform
       noBtn.style.left = `${randomX}px`;
       noBtn.style.top = `${randomY}px`;
-      noBtn.style.right = "auto";
-      noBtn.style.bottom = "auto";
-      noBtn.style.transform = `scale(${Math.max(scale, 0.25)}) rotate(${rotation}deg)`;
+      noBtn.style.transform = `scale(${Math.max(scale, 0.3)}) rotate(${rotation}deg)`;
     }
 
-    // "pointerdown" is the best for mobile as it triggers before the "click" delay
     noBtn.addEventListener("pointerdown", moveNoButton);
 
     yesBtn.addEventListener("click", () => {
-      // Try to play sound (browsers might block it until a user interaction occurs)
       yesSound.play().catch(() => {});
-      card.style.display = "none";
-      document.getElementById("gifScreen").style.display = "flex";
+      card.style.background = "rgba(255, 255, 255, 0.7)"; // Make card transparent too
+      card.querySelector('.emoji').style.display = "none";
+      card.querySelector('h1').style.display = "none";
+      btnArea.style.display = "none";
+      
+      gifScreen.style.display = "flex";
+      bgPicture.style.display = "block"; 
     });
-  </script>
 
+    const name = new URLSearchParams(window.location.search).get("name");
+    if (name) question.textContent = `${name}, will you be my Valentine?`;
+  </script>
 </body>
 </html>
