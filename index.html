@@ -6,6 +6,12 @@
   <title>Will you be my Valentine 💘</title>
 
   <style>
+    /* Prevent accidental scrolling/zooming on mobile */
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
       margin: 0;
       height: 100vh;
@@ -14,61 +20,71 @@
       align-items: center;
       justify-content: center;
       font-family: "Poppins", sans-serif;
-      overflow: hidden; /* Prevent scrolling on mobile when button moves */
+      overflow: hidden;
     }
 
     .card {
       background: white;
-      padding: 35px;
+      padding: 30px;
       border-radius: 22px;
       text-align: center;
       box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-      width: 85%;
-      max-width: 350px;
+      width: 90%;
+      max-width: 380px;
       position: relative;
-      min-height: 300px;
+      /* This prevents the button from ever leaving the white box visually */
+      overflow: hidden; 
+      min-height: 400px;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      justify-content: center;
     }
 
-    .emoji { font-size: 60px; }
-    h1 { font-size: 22px; margin: 20px 0 30px; color: #333; }
+    .emoji {
+      font-size: 60px;
+      margin-bottom: 10px;
+    }
 
-    .buttons {
+    h1 {
+      font-size: 24px;
+      margin: 10px 0 30px;
+      color: #333;
+    }
+
+    /* The container where the buttons live */
+    .buttons-container {
+      position: relative;
+      height: 150px;
       width: 100%;
-      height: 100px;
-      position: relative; /* Container for absolute buttons */
     }
 
     button {
-      padding: 12px 26px;
+      padding: 12px 28px;
       font-size: 18px;
       border: none;
       border-radius: 30px;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      touch-action: manipulation;
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.3s ease, top 0.3s ease;
       user-select: none;
-      -webkit-tap-highlight-color: transparent;
+      touch-action: none; /* Critical for mobile to prevent browser handling the touch */
     }
 
     #yesBtn {
       background: #ff4d79;
       color: white;
       position: absolute;
-      left: 10%;
+      left: 20px;
       bottom: 20px;
-      z-index: 2;
+      z-index: 10;
     }
 
     #noBtn {
       background: #e0e0e0;
       color: #333;
       position: absolute;
-      right: 10%;
+      right: 20px;
       bottom: 20px;
-      z-index: 1;
+      z-index: 5;
     }
 
     .gif-screen {
@@ -76,7 +92,6 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 20px;
     }
 
     .gif-screen img {
@@ -98,7 +113,7 @@
     <div class="emoji">🐱❤️</div>
     <h1 id="question">Will you be my Valentine?</h1>
 
-    <div class="buttons" id="btnContainer">
+    <div class="buttons-container" id="btnArea">
       <button id="yesBtn">Yes</button>
       <button id="noBtn">No</button>
     </div>
@@ -115,56 +130,61 @@
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
     const card = document.getElementById("card");
-    const container = document.getElementById("btnContainer");
-    const gifScreen = document.getElementById("gifScreen");
+    const btnArea = document.getElementById("btnArea");
     const question = document.getElementById("question");
     const yesSound = document.getElementById("yesSound");
 
-    let scale = 1;
-    let rotation = 0;
-
-    function dodgeNo(e) {
-      // Prevent zooming or scrolling on mobile tap
-      if(e) e.preventDefault();
-
-      const containerRect = container.getBoundingClientRect();
-      const btnWidth = noBtn.offsetWidth;
-      const btnHeight = noBtn.offsetHeight;
-
-      // Calculate bounds within the button container to keep it inside the card
-      const maxX = containerRect.width - btnWidth;
-      const maxY = containerRect.height - btnHeight;
-
-      // Ensure the button stays within visible bounds
-      const randomX = Math.max(0, Math.min(Math.random() * maxX, maxX));
-      const randomY = Math.max(-100, Math.min(Math.random() * maxY, maxY));
-
-      scale *= 0.85;
-      rotation += 360;
-
-      // If it gets too small to tap, reset scale slightly
-      const finalScale = scale < 0.2 ? 0.2 : scale;
-
-      noBtn.style.left = `${randomX}px`;
-      noBtn.style.top = `${randomY}px`;
-      noBtn.style.transform = `scale(${finalScale}) rotate(${rotation}deg)`;
-    }
-
-    // Pointerdown handles both Click and Touch effectively
-    noBtn.addEventListener("pointerdown", dodgeNo);
-
-    yesBtn.addEventListener("click", () => {
-      try { yesSound.play(); } catch(e) { console.log("Audio play blocked"); }
-      card.style.display = "none";
-      gifScreen.style.display = "flex";
-    });
-
-    // Dynamic Name support
+    // Dynamic name from URL
     const params = new URLSearchParams(window.location.search);
     const name = params.get("name");
     if (name) {
       question.textContent = `${name}, will you be my Valentine?`;
     }
+
+    let scale = 1;
+    let rotation = 0;
+
+    function moveNoButton(e) {
+      // Prevent default behavior (like zooming or clicking)
+      if(e) e.preventDefault();
+
+      // Get dimensions of the allowed area
+      const areaRect = btnArea.getBoundingClientRect();
+      
+      // We use fixed padding to ensure the button doesn't hug the walls
+      const padding = 10;
+      const bWidth = noBtn.offsetWidth;
+      const bHeight = noBtn.offsetHeight;
+
+      // Calculate safe max coordinates
+      const maxX = areaRect.width - bWidth - padding;
+      const maxY = areaRect.height - bHeight - padding;
+
+      // Random position within the safe zone
+      const randomX = Math.max(padding, Math.random() * maxX);
+      const randomY = Math.max(padding, Math.random() * maxY);
+
+      scale *= 0.85; 
+      rotation += 360;
+
+      // Apply new position and transform
+      noBtn.style.left = `${randomX}px`;
+      noBtn.style.top = `${randomY}px`;
+      noBtn.style.right = "auto";
+      noBtn.style.bottom = "auto";
+      noBtn.style.transform = `scale(${Math.max(scale, 0.25)}) rotate(${rotation}deg)`;
+    }
+
+    // "pointerdown" is the best for mobile as it triggers before the "click" delay
+    noBtn.addEventListener("pointerdown", moveNoButton);
+
+    yesBtn.addEventListener("click", () => {
+      // Try to play sound (browsers might block it until a user interaction occurs)
+      yesSound.play().catch(() => {});
+      card.style.display = "none";
+      document.getElementById("gifScreen").style.display = "flex";
+    });
   </script>
+
 </body>
 </html>
