@@ -22,7 +22,7 @@
       overflow: hidden;
     }
 
-    /* THE TRANSPARENT PICTURE BACKGROUND */
+    /* THE FULL BACKGROUND PICTURE */
     #bgPicture {
       display: none;
       position: fixed;
@@ -30,26 +30,24 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      /* UPDATED TO YOUR FILENAME */
       background-image: url('IMG_5915.jpeg'); 
       background-repeat: no-repeat;
       background-position: center center;
       background-size: cover;
-      opacity: 0.4; 
+      opacity: 0; 
       z-index: 1;
     }
 
     .fade-in-bg {
-      animation: fadeIn 2.5s ease-in forwards;
+      animation: fadeIn 2s ease-in forwards;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 0.4; }
+      to { opacity: 0.5; } /* Adjust 0.5 to make photo more or less clear */
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.95);
+      background: white;
       padding: 30px;
       border-radius: 22px;
       text-align: center;
@@ -85,41 +83,34 @@
       touch-action: none;
     }
 
-    #yesBtn {
-      background: #ff4d79;
-      color: white;
-      position: absolute;
-      left: 20px;
-      bottom: 20px;
-      z-index: 15;
-    }
+    #yesBtn { background: #ff4d79; color: white; position: absolute; left: 20px; bottom: 20px; z-index: 15; }
+    #noBtn { background: #e0e0e0; color: #333; position: absolute; right: 20px; bottom: 20px; z-index: 12; }
 
-    #noBtn {
-      background: #e0e0e0;
-      color: #333;
-      position: absolute;
-      right: 20px;
-      bottom: 20px;
-      z-index: 12;
-    }
-
-    .gif-screen {
+    /* CELEBRATION SCREEN */
+    #gifScreen {
       display: none;
+      position: fixed; /* Takes it out of the card flow */
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       flex-direction: column;
       align-items: center;
       text-align: center;
       z-index: 20;
+      width: 100%;
     }
 
-    .gif-screen img {
-      max-width: 85%;
+    #gifScreen img {
+      max-width: 250px;
       border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
 
-    .gif-screen h2 {
+    #gifScreen h2 {
       margin-top: 20px;
-      font-size: 28px;
+      font-size: 32px;
       color: #ff4d79;
+      text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
     }
   </style>
 </head>
@@ -130,19 +121,17 @@
   <div class="card" id="card">
     <div class="emoji">🐱❤️</div>
     <h1 id="question">Will you be my Valentine?</h1>
-
     <div class="buttons-container" id="btnArea">
       <button id="yesBtn">Yes</button>
       <button id="noBtn">No</button>
     </div>
   </div>
 
-  <div class="gif-screen" id="gifScreen">
+  <div id="gifScreen">
     <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" alt="Celebration GIF" />
     <h2>I KNEW IT! 😍💖</h2>
   </div>
 
-  <audio id="yesSound" src="https://www.soundjay.com/misc/sounds/wind-chime-1.mp3" preload="auto"></audio>
 
   <script>
     const noBtn = document.getElementById("noBtn");
@@ -152,6 +141,7 @@
     const question = document.getElementById("question");
     const yesSound = document.getElementById("yesSound");
     const bgPicture = document.getElementById("bgPicture");
+    const gifScreen = document.getElementById("gifScreen");
 
     const noTexts = ["No", "Are you sure?", "Think again!", "Wait, what?", "Please? 🥺", "Last chance!"];
     let scale = 1, rotation = 0, textIndex = 0;
@@ -179,14 +169,14 @@
 
     yesBtn.addEventListener("click", () => {
       yesSound.play().catch(() => {});
-      card.style.background = "rgba(255, 255, 255, 0.7)"; 
-      card.querySelector('.emoji').style.display = "none";
-      card.querySelector('h1').style.display = "none";
-      btnArea.style.display = "none";
       
-      gifScreen.style.display = "flex";
+      // HIDE THE CARD ENTIRELY
+      card.style.display = "none"; 
+      
+      // SHOW BACKGROUND PHOTO AND GIF
       bgPicture.style.display = "block";
       bgPicture.classList.add('fade-in-bg');
+      gifScreen.style.display = "flex";
     });
 
     const name = new URLSearchParams(window.location.search).get("name");
