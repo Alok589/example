@@ -23,7 +23,6 @@
       touch-action: none;
     }
 
-    /* THE FULL BACKGROUND PICTURE */
     #bgPicture {
       display: none;
       position: fixed;
@@ -44,7 +43,7 @@
 
     @keyframes fadeIn {
       from { opacity: 0; }
-      to { opacity: 0.5; } /* Adjust transparency of your photo here */
+      to { opacity: 0.5; } 
     }
 
     .card {
@@ -80,7 +79,8 @@
       cursor: pointer;
       transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), left 0.4s ease, top 0.4s ease;
       user-select: none;
-      touch-action: none;
+      /* Ensures the button is high priority for touch */
+      touch-action: manipulation; 
     }
 
     #yesBtn { 
@@ -89,7 +89,7 @@
       position: absolute; 
       left: 20px; 
       bottom: 20px; 
-      z-index: 20; 
+      z-index: 50; /* High z-index to ensure it's on top */
     }
 
     #noBtn { 
@@ -98,7 +98,7 @@
       position: absolute; 
       right: 20px; 
       bottom: 20px; 
-      z-index: 15; 
+      z-index: 40; 
     }
 
     #gifScreen {
@@ -117,7 +117,6 @@
     #gifScreen img {
       max-width: 250px;
       border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
 
     #gifScreen h2 {
@@ -159,7 +158,10 @@
     let scale = 1, rotation = 0, textIndex = 0;
 
     function moveNoButton(e) {
-      if(e) e.preventDefault();
+      if(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
       const areaRect = btnArea.getBoundingClientRect();
       const maxX = areaRect.width - noBtn.offsetWidth - 20;
       const maxY = areaRect.height - noBtn.offsetHeight - 20;
@@ -178,20 +180,25 @@
     }
 
     function handleYes(e) {
-      if(e) e.preventDefault();
+      if(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
       
-      // Clear the main card
+      // Hide the card
       card.style.display = "none";
       
-      // Show background photo and celebration GIF
+      // Show background and GIF
       bgPicture.style.display = "block";
       bgPicture.classList.add('fade-in-bg');
       gifScreen.style.display = "flex";
     }
 
-    // Event listeners using pointerdown for instant response on mobile
+    // Assigning both pointerdown and click for maximum compatibility
     noBtn.addEventListener("pointerdown", moveNoButton);
+    
     yesBtn.addEventListener("pointerdown", handleYes);
+    yesBtn.addEventListener("click", handleYes);
 
     // URL Name personalization
     const name = new URLSearchParams(window.location.search).get("name");
